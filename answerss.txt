@@ -1,0 +1,83 @@
+Part 1: Code Examples from Lab 5 with Explanations
+
+Example 1: process_creation.c (Fork Demonstration from Exercise 1)
+Code:
+#include <stdio.h>
+#include <unistd.h>
+
+int main() {
+    pid_t pid = fork();
+    if (pid == 0) {
+        printf("This is the child process. PID: %d\n", getpid());
+    } else if (pid > 0) {
+        printf("This is the parent process. PID: %d\n", getpid());
+    } else {
+        printf("Fork failed!\n");
+    }
+    return 0;
+}
+
+Explanation: This code demonstrates process creation using the fork() system call in C. The fork() function creates a new child process by duplicating the parent process. It returns 0 to the child process, the child's PID to the parent process, and a negative value if it fails. Both processes continue execution from the point after fork(), printing their respective messages and PIDs. The output order may vary due to process scheduling. This example illustrates basic multiprocessing in Unix-like systems.
+
+Sample Output (PIDs will vary):
+This is the parent process. PID: 1234
+This is the child process. PID: 1235
+
+Example 2: file1.c and file2.c (Linker Demonstration from Exercise 5)
+file1.c Code:
+#include <stdio.h>
+
+void hello() {
+    printf("Hello from file1!\n");
+}
+
+file2.c Code:
+void hello();
+
+int main() {
+    hello();
+    return 0;
+}
+
+Explanation: These two files demonstrate the role of the linker by separating function definition and usage. file1.c defines the hello() function, which prints a message. file2.c declares hello() and calls it from main(). When compiled separately into object files and linked together (e.g., using gcc file1.c file2.c -o output_program), the linker resolves the reference to hello() from file2.c to its definition in file1.c, creating a single executable. This shows how the linker combines multiple modules and handles symbol resolution. If you modify file1.c (e.g., change the printf message) and recompile/link, the output changes, demonstrating the impact of relinking.
+
+Sample Output (after running ./output_program):
+Hello from file1!
+
+Example 3: simple_program.c (Loader Demonstration from Exercise 6)
+Code:
+#include <stdio.h>
+
+int main() {
+    printf("This is a simple program.\n");
+    return 0;
+}
+
+Explanation: This is a basic C program that prints a simple message. It is used to demonstrate the loader's role. After compiling (gcc simple_program.c -o simple_program), running ldd simple_program lists the dynamic libraries (shared objects) that the loader will load into memory at runtime. The loader handles dynamic linking, loading these libraries (like libc.so for printf), and prepares the program for execution. This example highlights how the loader manages dependencies not resolved at compile time.
+
+Sample Output (of running the program):
+This is a simple program.
+
+Sample ldd Output (may vary by system):
+	linux-vdso.so.1 (0x00007ffd0b3f0000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f8a1b200000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007f8a1b400000)
+
+Note on Other Exercises (2, 3, 4): These involve shell commands for managing processes (starting in background with &, listing with jobs, finding PID with ps aux | grep sleep, stopping with kill <PID>, pausing with kill -STOP <PID>, resuming with kill -CONT <PID>). They do not require C code but demonstrate process control in a Unix shell environment.
+
+Part 2: Job of the Linker
+The linker is a tool (e.g., ld in GCC) that combines multiple object files (produced by the compiler) and libraries into a single executable or shared library. Its key jobs include:
+- Resolving external symbols: It matches references to functions/variables in one file to their definitions in another.
+- Relocation: Adjusts addresses in the code to fit the final memory layout.
+- Incorporating libraries: Links static or dynamic libraries to provide missing code.
+- Error detection: Flags issues like unresolved symbols or duplicates.
+In the compilation process, it follows the translator (compiler/assembler) and precedes the loader, as shown in the Lab 5 diagram (Source Code -> Translator -> Object Code -> Linker -> Executable File).
+
+Part 3: Job of the Loader
+The loader is part of the operating system that loads an executable file from storage into memory for execution. Its main responsibilities include:
+- Allocating memory: Reserves space for the program's segments (code/text, data, stack, heap).
+- Loading program sections: Copies the executable's code and data into memory.
+- Dynamic linking: Resolves and loads shared libraries at runtime (if not done statically).
+- Initialization: Sets up the execution environment, such as initializing registers and jumping to the entry point (e.g., main()).
+- Starting execution: Hands control to the program.
+As per the Lab 5 diagram, it follows the linker (Executable File -> Loader -> Memory). Tools like ldd inspect what the loader will handle dynamically.

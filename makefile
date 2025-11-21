@@ -1,0 +1,16 @@
+CC = gcc
+CFLAGS = -Wall
+
+all: process_creation file_example simple
+
+process_creation: process_creation.c
+	$(CC) $(CFLAGS) process_creation.c -o process_creation
+
+file_example: file1.c file2.c
+	$(CC) $(CFLAGS) file1.c file2.c -o output_program
+
+simple: simple_program.c
+	$(CC) $(CFLAGS) simple_program.c -o simple_program
+
+clean:
+	rm -f process_creation output_program simple_program
